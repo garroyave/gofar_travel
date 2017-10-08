@@ -59,3 +59,148 @@ CREATE PROFILE DEVELOPMENT
 LIMIT SESSIONS_PER_USER 2
 PASSWORD_LIFE_TIME 100 
 IDLE_TIME 30;
+
+--7.Create 4 users, assign them the tablespace "hospital_bills"; profiles created should be used for the 
+----users, all the users should be allow to connect to the database
+
+CREATE USER usuario_1 identified by usu1
+DEFAULT TABLESPACE hospital_bills
+profile manager;
+
+CREATE USER usuario_2 identified by usu2
+DEFAULT TABLESPACE hospital_bills
+PROFILE FINANCE;
+
+CREATE USER usuario_3 identified by usu3
+DEFAULT TABLESPACE hospital_bills
+PROFILE DEVELOPMENT;
+
+CREATE USER usuario_4 identified by usu4
+DEFAULT TABLESPACE hospital_bills
+PROFILE DEVELOPMENT;
+
+GRANT CREATE SESSION TO 
+usuario_1,
+usuario_2,
+usuario_3,
+usuario_4;
+
+--8.Lock the users associate with profiles: manager and finance
+ALTER USER usuario_1 ACCOUNT LOCK;
+ALTER USER usuario_2  ACCOUNT LOCK;
+
+--9.Delete the tablespace called "test_purposes"
+
+DROP TABLESPACE test_purposes ;
+
+--10.Create tables with its columns according to your normalization.
+
+CREATE TABLE PACIENTES 
+	(id_paciente number PRIMARY KEY not null,
+    nombre_paciente varchar(50)not null,
+    direccion varchar(30)not null,
+    codigo_postal number(6)not null,    
+    ciudad varchar(30)not null)
+    tablespace hospital_bills;
+    
+CREATE TABLE CENTRO_DE_COSTOS
+    (id_centro_costo number PRIMARY KEY not null,
+    descripcion varchar(20)not null)
+    tablespace hospital_bills;
+       
+CREATE TABLE FACTURAS
+    (id_factura number PRIMARY KEY not null,
+    fecha_factura date not null,
+    fecha_ingreso date not null,
+    fecha_salida  date not null,
+    paciente_id number not null,
+    CONSTRAINT FK_FACTURAS FOREIGN KEY (paciente_id) REFERENCES PACIENTES(id_paciente))
+    tablespace hospital_bills;
+    
+CREATE TABLE SERVICIOS
+    (id_servicio number PRIMARY KEY not null,
+    descripcion varchar(30) not null,
+    valor_servcio integer not null,
+    centro_costo_id number not null,
+    CONSTRAINT  FK_SERVICIOS FOREIGN KEY (centro_costo_id) REFERENCES CENTRO_DE_COSTOS(id_centro_costo))
+    tablespace hospital_bills;
+    
+CREATE TABLE DETALLE_FACTURAS(
+    fecha_servicio date not null,   
+    factura_id number not null,
+    servicio_id number not null,
+    CONSTRAINT FK_factura_id FOREIGN KEY (factura_id) REFERENCES FACTURAS(id_factura),
+    CONSTRAINT FK_servicio_id FOREIGN KEY(servicio_id) REFERENCES SERVICIOS(id_servicio))
+    tablespace hospital_bills;
+    
+CREATE SEQUENCE paciente_sequence 
+START WITH 1
+INCREMENT BY 1;
+
+CREATE SEQUENCE centro_costo_sequence 
+START WITH 2002
+INCREMENT BY 1;
+    
+CREATE SEQUENCE factura_sequence 
+START WITH 6800
+INCREMENT BY 1;
+
+CREATE SEQUENCE servicio_sequence 
+START WITH 1000
+INCREMENT BY 1;
+
+INSERT INTO PACIENTES  VALUES (paciente_sequence.nextval,'Silas Richmond','2613 Et Rd','80169','Florida');
+INSERT INTO PACIENTES  VALUES (paciente_sequence.nextval,'Chandler Duffy','Ap #532-8719 Laoreet Av','17990','Aubange');
+INSERT INTO PACIENTES  VALUES (paciente_sequence.nextval,'Chase James','Ap #278-2826 Risus. Rd','77885','Codognè');
+INSERT INTO PACIENTES  VALUES (paciente_sequence.nextval,'Simon Noel','915-9465 Viverra. Av.','90539','Port Coquitlam');
+INSERT INTO PACIENTES  VALUES (paciente_sequence.nextval,'Ralph Marquez','P.O. Box 476, 8484 Dolor Road','37123','Lille');
+INSERT INTO PACIENTES  VALUES (paciente_sequence.nextval,'Blaze Spencer','P.O. Box 309, 2865 Augue Ave','88906','Burlington');
+INSERT INTO PACIENTES  VALUES (paciente_sequence.nextval,'Dorian Dickerson','Ap #454-1330 Adipiscing Road','80663','Mörfelden-Walldorf');
+INSERT INTO PACIENTES  VALUES (paciente_sequence.nextval,'Jesse Gonzalez','3388 Aliquam, Avenue','12704','Carson City');
+INSERT INTO PACIENTES  VALUES (paciente_sequence.nextval,'Drake Mullen','P.O. Box 995, 3039 Egestas Ave','32664','Nieuwkapelle');
+INSERT INTO PACIENTES  VALUES (paciente_sequence.nextval,'Elijah Bartlett','7389 Mauris Ave','58475','Bowden');
+   
+   
+INSERT INTO CENTRO_DE_COSTOS VALUES(2007,'Laboratorio');
+INSERT INTO CENTRO_DE_COSTOS VALUES(2003,'Radiologia');
+INSERT INTO CENTRO_DE_COSTOS VALUES(2004,'Cirugia');
+INSERT INTO CENTRO_DE_COSTOS VALUES(2009,'Tratamiento');
+INSERT INTO CENTRO_DE_COSTOS VALUES(2006,'Fracturas');
+
+INSERT INTO SERVICIOS VALUES (servicio_sequence.nextval,'glucosa','50000',2007);
+INSERT INTO SERVICIOS VALUES (servicio_sequence.nextval,'colesterol','80000',2007);
+INSERT INTO SERVICIOS VALUES (servicio_sequence.nextval,'trigliceridos','60000',2007);
+INSERT INTO SERVICIOS VALUES (servicio_sequence.nextval,'tomografia axial computarizada','150000',2003);
+INSERT INTO SERVICIOS VALUES (servicio_sequence.nextval,'resonancia magnetica','200000',2003);
+INSERT INTO SERVICIOS VALUES (servicio_sequence.nextval,'mamografia','130000',2003);
+INSERT INTO SERVICIOS VALUES (servicio_sequence.nextval,'traqueostomia','900000',2004);
+INSERT INTO SERVICIOS VALUES (servicio_sequence.nextval,'embarazo ectopico','550000',2004);
+INSERT INTO SERVICIOS VALUES (servicio_sequence.nextval,'varicocele','450000',2004);
+INSERT INTO SERVICIOS VALUES (servicio_sequence.nextval,'femur','820000',2006);
+INSERT INTO SERVICIOS VALUES (servicio_sequence.nextval,'tobillo','720000',2006);
+INSERT INTO SERVICIOS VALUES (servicio_sequence.nextval,'craneo','980000',2006);
+INSERT INTO SERVICIOS VALUES (servicio_sequence.nextval,'dermatitis_acne','450000',2009);
+INSERT INTO SERVICIOS VALUES (servicio_sequence.nextval,'hipertension','130000',2009);
+INSERT INTO SERVICIOS VALUES (servicio_sequence.nextval,'renal','250000',2009);
+
+INSERT INTO FACTURAS VALUES(factura_sequence.nextval,'26/07/2017','20/07/2017','26/07/2017',1);
+INSERT INTO FACTURAS VALUES(factura_sequence.nextval,'26/07/2017','20/07/2017','26/07/2017',2);
+INSERT INTO FACTURAS VALUES(factura_sequence.nextval,'08/05/2017','01/05/2017','08/05/2017',3);
+INSERT INTO FACTURAS VALUES(factura_sequence.nextval,'07/05/2017','02/05/2017','07/05/2017',4);
+INSERT INTO FACTURAS VALUES(factura_sequence.nextval,'04/09/2017','30/08/2017','04/09/2017',5);
+INSERT INTO FACTURAS VALUES(factura_sequence.nextval,'20/11/2016','04/11/2016','20/11/2016',6);
+INSERT INTO FACTURAS VALUES(factura_sequence.nextval,'28/11/2017','04/11/2017','28/11/2017',7);
+INSERT INTO FACTURAS VALUES(factura_sequence.nextval,'24/12/2016','04/12/2016','24/12/2016',8);
+INSERT INTO FACTURAS VALUES(factura_sequence.nextval,'25/04/2017','22/04/2017','26/04/2017',9);
+INSERT INTO FACTURAS VALUES(factura_sequence.nextval,'06/01/2017','01/01/2017','06/01/2017',10);
+
+INSERT INTO DETALLE_FACTURAS VALUES ('21/07/2017',6800,1001);
+INSERT INTO DETALLE_FACTURAS VALUES ('21/07/2017',6801,1012);
+INSERT INTO DETALLE_FACTURAS VALUES ('02/05/2017',6802,1003);
+INSERT INTO DETALLE_FACTURAS VALUES ('03/05/2017',6803,1004);
+INSERT INTO DETALLE_FACTURAS VALUES ('01/09/2017',6804,1005);
+INSERT INTO DETALLE_FACTURAS VALUES ('05/11/2016',6805,1006);
+INSERT INTO DETALLE_FACTURAS VALUES ('05/11/2017',6806,1007);
+INSERT INTO DETALLE_FACTURAS VALUES ('05/12/2016',6807,1008);
+INSERT INTO DETALLE_FACTURAS VALUES ('23/04/2017',6808,1013);
+INSERT INTO DETALLE_FACTURAS VALUES ('02/01/2017',6809,1010);
