@@ -161,11 +161,11 @@ INSERT INTO PACIENTES  VALUES (paciente_sequence.nextval,'Drake Mullen','P.O. Bo
 INSERT INTO PACIENTES  VALUES (paciente_sequence.nextval,'Elijah Bartlett','7389 Mauris Ave','58475','Bowden');
    
    
-INSERT INTO CENTRO_DE_COSTOS VALUES(2007,'Laboratorio');
-INSERT INTO CENTRO_DE_COSTOS VALUES(2003,'Radiologia');
-INSERT INTO CENTRO_DE_COSTOS VALUES(2004,'Cirugia');
-INSERT INTO CENTRO_DE_COSTOS VALUES(2009,'Tratamiento');
-INSERT INTO CENTRO_DE_COSTOS VALUES(2006,'Fracturas');
+INSERT INTO CENTRO_DE_COSTOS VALUES(centro_de_costo_sequence.nextval,'Radiologia');
+INSERT INTO CENTRO_DE_COSTOS VALUES(centro_de_costo_sequence.nextval,'Cirugia');
+INSERT INTO CENTRO_DE_COSTOS VALUES(centro_de_costo_sequence.nextval,'Fracturas');
+INSERT INTO CENTRO_DE_COSTOS VALUES(centro_de_costo_sequence.nextval,'Laboratorio');
+INSERT INTO CENTRO_DE_COSTOS VALUES(centro_de_costo_sequence.nextval,'Tratamiento');
 
 INSERT INTO SERVICIOS VALUES (servicio_sequence.nextval,'glucosa','50000',2007);
 INSERT INTO SERVICIOS VALUES (servicio_sequence.nextval,'colesterol','80000',2007);
