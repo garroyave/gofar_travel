@@ -4,22 +4,24 @@ punto 5: Create a view to display the information of the bills patient, patient_
 --functions created in the previous step
 create or replace view p5_view_information_patient as
 select
-      tp.id_paciente as id_paciente
-      ,tp.nombre_paciente as nom_paciente
-      ,tp.direccion as dir_paciente
-      ,tf.fecha_factura as fecha
-      ,tf.fecha_ingreso as fecha_ingreso
-      ,tf.fecha_salida as fecha_salida
-      ,p4_total_bill_items(2005,tf.id_factura) as total_items_room_board -- cantidad de items del centro de costos 2005 Room and board y las facturas del paciente
-      ,p4_total_bill_cost_center(2005,tf.id_factura) as total_vlr_factura_romm_board -- total factura del centro de costos 2005 room & board
-      ,p4_total_bill_items(2007,tf.id_factura) as total_items_laboratory -- cantidad de items del centro de costos 2007 Laboratory y las facturas del paciente
-      ,p4_total_bill_cost_center(2007,tf.id_factura) as total_vlr_factura_laboratory -- total factura del centro de costos 2007 Laboratory
-      ,p4_total_bill_items(2002,tf.id_factura) as total_items_radiology -- cantidad de items del centro de costos 2002 Radiology y las facturas del paciente
-      ,p4_total_bill_cost_center(2002,tf.id_factura) as total_vlr_factura_radiology -- total factura del centro de costos 2002 Radiology
+      tp.id_paciente as id_paciente,
+      tp.nombre_paciente as nom_paciente,
+      tp.direccion as dir_paciente,
+      tf.fecha_factura as fecha,
+      tf.fecha_ingreso as fecha_ingreso,
+      tf.fecha_salida as fecha_salida,
+      p4_total_bill_items(2025,tf.id_factura) as total_items_room_board, -- cantidad de items del centro de costos 2025 Room and board y las facturas del paciente
+      p4_total_bill_cost_center(2025,tf.id_factura) as total_vlr_factura_romm_board, -- total factura del centro de costos 2025 room & board
+      p4_total_bill_items(2027,tf.id_factura) as total_items_laboratory, -- cantidad de items del centro de costos 2027 Laboratory y las facturas del paciente
+      p4_total_bill_cost_center(2027,tf.id_factura) as total_vlr_factura_laboratory, -- total factura del centro de costos 2027 Laboratory
+      p4_total_bill_items(2022,tf.id_factura) as total_items_radiology, -- cantidad de items del centro de costos 2022 Radiology y las facturas del paciente
+      p4_total_bill_cost_center(2022,tf.id_factura) as total_vlr_factura_radiology, -- total factura del centro de costos 2022 Radiology
     from
       pacientes tp
         inner join facturas tf
           on tf.paciente_id = tp.id_paciente;
+
+select * from P5_VIEW_INFORMATION_PATIENT
 
 
 
@@ -64,7 +66,7 @@ begin
    end;
  end;
 
-punto 9: Create a procedure to increase the cost of each item as follows 
+--punto 9: Create a procedure to increase the cost of each item as follows 
  create or replace procedure p9_increase_cost_items
  as
         id_cost NUMBER;
@@ -74,8 +76,9 @@ punto 9: Create a procedure to increase the cost of each item as follows
      --If the item belongs to Room and board cost center: 2%
      --consulta el id del centro de costos
      select tc.id_centro_costo into id_cost
+      
      from centro_de_costos tc
-     where tc.descripcion like '%Room and board%';
+     where tc.descripcion like '%Habitaciòn y comida%';
      --actualiza el valor de los servicios del centro de costos buscado
      update servicios ts
        set ts.valor_servcio = ts.valor_servcio + (ts.valor_servcio * 2 / 100)
@@ -103,7 +106,7 @@ punto 9: Create a procedure to increase the cost of each item as follows
      --consulta el id del centro de costos
      select tc.id_centro_costo into id_cost
      from centro_de_costos tc
-     where tc.descripcion like '%Radiology%';
+     where tc.descripcion like '%Radiologia%';
      --actualiza el valor de los servicios del centro de costos buscado
      update servicios ts
        set ts.valor_servcio = ts.valor_servcio + (ts.valor_servcio * 4 / 100)
@@ -112,3 +115,12 @@ punto 9: Create a procedure to increase the cost of each item as follows
      EXCEPTION WHEN OTHERS THEN NULL;     
    end;
 end;
+
+
+
+SELECT * FROM informacion_paciente
+ALTER TABLE SERVICIOS 
+RENAME COLUMN VALOR_SERVCIO to VALOR_SERVICIO
+
+SELECT * FROM SERVICIOS 
+ 
