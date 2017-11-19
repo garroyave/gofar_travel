@@ -63,3 +63,52 @@ begin
    WHEN OTHERS THEN null;
    end;
  end;
+
+punto 9: Create a procedure to increase the cost of each item as follows 
+ create or replace procedure p9_increase_cost_items
+ as
+        id_cost NUMBER;
+ BEGIN
+ 	begin
+     id_cost := 0;
+     --If the item belongs to Room and board cost center: 2%
+     --consulta el id del centro de costos
+     select tc.id_centro_costo into id_cost
+     from centro_de_costos tc
+     where tc.descripcion like '%Room and board%';
+     --actualiza el valor de los servicios del centro de costos buscado
+     update servicios ts
+       set ts.valor_servcio = ts.valor_servcio + (ts.valor_servcio * 2 / 100)
+     where ts.centro_costo_id = id_cost;
+     commit;
+     EXCEPTION WHEN OTHERS THEN NULL;
+   end;
+   begin
+     id_cost := 0;
+     --If the item belongs to Laboratory: 3.5%
+     --consulta el id del centro de costos
+     select tc.id_centro_costo into id_cost
+     from centro_de_costos tc
+     where tc.descripcion like '%Laboratory%';
+     --actualiza el valor de los servicios del centro de costos buscado
+     update servicios ts
+       set ts.valor_servcio = ts.valor_servcio + (ts.valor_servcio * 3.5 / 100)
+     where ts.centro_costo_id = id_cost;
+     commit;
+     EXCEPTION WHEN OTHERS THEN NULL;    
+   end;
+   begin
+     id_cost := 0;
+     --If the item belongs to Radiology: 4%
+     --consulta el id del centro de costos
+     select tc.id_centro_costo into id_cost
+     from centro_de_costos tc
+     where tc.descripcion like '%Radiology%';
+     --actualiza el valor de los servicios del centro de costos buscado
+     update servicios ts
+       set ts.valor_servcio = ts.valor_servcio + (ts.valor_servcio * 4 / 100)
+     where ts.centro_costo_id = id_cost;
+     commit;
+     EXCEPTION WHEN OTHERS THEN NULL;     
+   end;
+end;
