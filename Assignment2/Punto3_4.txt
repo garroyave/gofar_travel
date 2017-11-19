@@ -1,0 +1,81 @@
+---Punto 3. Cree una vista para mostrar la información de la factura (patient, patient_name, patient_address, date, total, 
+---total_room_board) que tiene el saldo más alto para el centro de costo 'Room & board'.
+
+create or replace view informacion_paciente as (
+select PACIENTES.ID_PACIENTE AS PACIENTE, PACIENTES.NOMBRE_PACIENTE AS NOMBRE_PACIENTE,
+PACIENTES.DIRECCION AS DIRECCION, FACTURAS.FECHA_FACTURA AS FECHA, FACTURAS.TOTAL_FACTURA AS TOTAL,
+SUM (SERVICIOS.VALOR_SERVICIO) AS Habitacion y comida
+from servicios join DETALLE_FACTURAS on SERVICIOS.ID_SERVICIO = DETALLE_FACTURAS.SERVICIO_ID
+     JOIN CENTRO_DE_COSTOS ON CENTRO_DE_COSTOS.ID_CENTRO_COSTO = SERVICIOS.CENTRO_COSTO_ID JOIN FACTURAS
+        ON DETALLE_FACTURAS.FACTURA_ID = FACTURAS.ID_FACTURA 
+    JOIN PACIENTES 
+        ON FACTURAS.PACIENTE_ID = PACIENTES.ID_PACIENTE
+WHERE CENTRO_DE_COSTOS.ID_CENTRO_COSTO ='2025'
+
+GROUP BY PACIENTES.ID_PACIENTE, PACIENTES.NOMBRE_PACIENTE,
+PACIENTES.DIRECCION, FACTURAS.FECHA_FACTURA, FACTURAS.TOTAL_FACTURA
+);
+
+
+--Punto 4 Create two functions
+
+--funcion 1: the first one which receives 2 params: (cost_center_id, bill_id) and return the
+--total balance for all items which belongs to the cost center and associated to a bill
+
+	CREATE OR REPLACE FUNCTION P4_total_bill_cost_center(
+                           cost_center_id IN NUMBER,
+                           bill_id IN NUMBER)
+	RETURN NUMBER AS
+   	p_total NUMBER(25,4);
+	BEGIN
+  	 p_total := 0;
+    	select
+      		sum(nvl(tf.total_factura,0)) as total_fac
+      		INTO
+      		p_total
+    	from
+      		facturas tf
+        	inner join detalle_facturas tdf
+          	on tdf.factura_id = tf.id_factura
+        	inner join servicios ts
+          	on ts.id_servicio = tdf.servicio_id
+        	inner join centro_de_costos  tc
+          	on tc.id_centro_costo = ts.centro_costo_id
+    	where
+        	tf.id_factura = bill_id
+        	and tc.id_centro_costo = cost_center_id;
+   	RETURN nvl(p_total,0);
+	EXCEPTION
+   	WHEN OTHERS THEN null;
+	END;
+
+
+--funcion 2: The second one also receives 2 params (cost_center_id, bill_id) and return the total 
+--of number of items associated to a bill which belongs to the cost center
+
+CREATE OR REPLACE FUNCTION P4_total_bill_items(
+                                cost_center_id IN NUMBER,
+                                bill_id IN NUMBER) RETURN NUMBER AS
+	   p_total NUMBER(25);
+		BEGIN
+   		p_total := 0;
+    		select
+      		count(nvl(tdf.servicio_id,0)) as total_items
+      		INTO
+      		p_total
+    	from
+      		facturas tf
+        	inner join detalle_facturas tdf
+          	on tdf.factura_id = tf.id_factura
+        	inner join servicios ts
+          	on ts.id_servicio = tdf.servicio_id
+        	inner join centro_de_costos  tc
+          	on tc.id_centro_costo = ts.centro_costo_id
+    	where
+        	tf.id_factura = bill_id
+        	and tc.id_centro_costo = cost_center_id;
+   	RETURN nvl(p_total,0);
+	EXCEPTION
+   	WHEN OTHERS THEN null;
+END;
+
